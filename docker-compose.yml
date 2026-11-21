@@ -1,0 +1,29 @@
+name: circuito-devops
+
+services:
+  db:
+    image: mariadb@sha256:d4fdec0510ad498e4f3127da30a99df3745bd6d5e611ae6ac5f76403d9284a8d
+    container_name: dbgestor_devops_mariadb
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:3307:3306"
+
+    environment:
+      MARIADB_DATABASE: dbgestor
+      MARIADB_USER: "${DB_USERNAME:?Falta definir DB_USERNAME}"
+      MARIADB_PASSWORD: "${DB_PASSWORD:?Falta definir DB_PASSWORD}"
+      MARIADB_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:?Falta definir DB_ROOT_PASSWORD}"
+
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mariadb_data:
