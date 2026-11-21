@@ -25,5 +25,25 @@ services:
       timeout: 5s
       retries: 10
 
+  api:
+    build:
+      context: ../Ejercicio5MyAPIGestor
+      dockerfile: Dockerfile
+    image: gestor-api:dev
+    container_name: dbgestor_devops_api
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:8081:8081"
+
+    environment:
+      DB_URL: jdbc:mariadb://db:3306/dbgestor
+      DB_USERNAME: "${DB_USERNAME:?Falta definir DB_USERNAME}"
+      DB_PASSWORD: "${DB_PASSWORD:?Falta definir DB_PASSWORD}"
+
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   mariadb_data:
