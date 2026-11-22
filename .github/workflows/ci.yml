@@ -18,6 +18,9 @@ jobs:
     env:
       DB_USERNAME: gestor_ci
       DB_PASSWORD: clave_ci_temporal
+      MONITORING_USERNAME: monitor_ci
+      MONITORING_PASSWORD: monitoreo_ci_temporal
+      GRAFANA_ADMIN_PASSWORD: grafana_ci_temporal
 
     steps:
       - name: Obtener codigo

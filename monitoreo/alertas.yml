@@ -1,0 +1,12 @@
+groups:
+  - name: gestor_api
+    interval: 30s
+    rules:
+      - alert: MetricasAPINoDisponibles
+        expr: up{job="gestor_api_render"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "No se pueden consultar las métricas de la API"
+          description: "La consulta de métricas ha fallado durante dos minutos."

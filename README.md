@@ -29,6 +29,9 @@ Crear un archivo `.env` tomando `.env.example` como referencia y definir:
 
 - DB_USERNAME
 - DB_PASSWORD
+- MONITORING_USERNAME
+- MONITORING_PASSWORD
+- GRAFANA_ADMIN_PASSWORD
 
 Las credenciales reales quedan excluidas de Git.
 
@@ -98,3 +101,37 @@ docker compose --env-file .env stop
 - Comunicación cliente → API → PostgreSQL comprobada en Docker.
 
 El CI de infraestructura valida la configuración de Compose.
+
+## Monitoreo
+
+Prometheus y Grafana se ejecutan localmente con Docker y consultan
+las métricas de la API publicada en Render.
+
+En `.env`, las variables MONITORING_USERNAME y MONITORING_PASSWORD
+deben coincidir con las configuradas en la API de Render.
+GRAFANA_ADMIN_PASSWORD define la contraseña del usuario admin de Grafana.
+
+Iniciar el monitoreo:
+
+```powershell
+docker compose --env-file .env up -d prometheus grafana
+```
+
+Accesos:
+
+- [Destinos de Prometheus](http://localhost:9090/targets)
+- [Alertas de Prometheus](http://localhost:9090/alerts)
+- [Grafana](http://localhost:3000)
+
+Grafana carga automáticamente la conexión y el tablero desde los
+archivos de la carpeta `monitoreo`.
+
+El tablero muestra estado, CPU, memoria heap, solicitudes,
+tiempo promedio de respuesta y errores HTTP 5xx.
+
+La alerta MetricasAPINoDisponibles se activa cuando la consulta
+de métricas falla durante dos minutos. Su estado se consulta
+en la página de alertas de Prometheus.
+
+La recolección de métricas requiere que el equipo y Docker
+permanezcan encendidos.

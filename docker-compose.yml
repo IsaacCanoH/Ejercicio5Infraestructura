@@ -39,6 +39,8 @@ services:
       DB_URL: jdbc:postgresql://postgres:5432/dbgestor
       DB_USERNAME: "${DB_USERNAME:?Falta definir DB_USERNAME}"
       DB_PASSWORD: "${DB_PASSWORD:?Falta definir DB_PASSWORD}"
+      MONITORING_USERNAME: "${MONITORING_USERNAME:?Falta definir MONITORING_USERNAME}"
+      MONITORING_PASSWORD: "${MONITORING_PASSWORD:?Falta definir MONITORING_PASSWORD}"
 
     depends_on:
       postgres:
@@ -62,6 +64,52 @@ services:
     depends_on:
       api:
         condition: service_started
+  
+  prometheus:
+    image: prom/prometheus:v3.13.5
+    container_name: dbgestor_devops_prometheus
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:9090:9090"
+
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=7d"
+
+    volumes:
+      - ./monitoreo/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoreo/alertas.yml:/etc/prometheus/alertas.yml:ro
+      - prometheus_data:/prometheus
+
+    secrets:
+      - monitoring_password
+  
+  grafana:
+    image: grafana/grafana:13.3.1
+    container_name: dbgestor_devops_grafana
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:3000:3000"
+
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_ADMIN_PASSWORD:?Falta definir GRAFANA_ADMIN_PASSWORD}"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoreo/grafana-datasource.yml:/etc/grafana/provisioning/datasources/gestor.yml:ro
+      - ./monitoreo/grafana-dashboard.yml:/etc/grafana/provisioning/dashboards/gestor.yml:ro
+      - ./monitoreo/tablero-api.json:/etc/grafana/dashboards/tablero-api.json:ro
 
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:
+
+secrets:
+  monitoring_password:
+    environment: MONITORING_PASSWORD
