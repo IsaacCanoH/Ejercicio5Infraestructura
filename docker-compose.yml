@@ -45,5 +45,24 @@ services:
       db:
         condition: service_healthy
 
+  cliente:
+    build:
+      context: ../Ejercicio5Cliente
+      dockerfile: Dockerfile
+    image: gestor-cliente:dev
+    container_name: dbgestor_devops_cliente
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:8082:8082"
+
+    environment:
+      SERVER_PORT: "8082"
+      API_BASE_URL: http://api:8081
+
+    depends_on:
+      api:
+        condition: service_started
+
 volumes:
   mariadb_data:
