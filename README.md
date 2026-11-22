@@ -1,71 +1,86 @@
 # Infraestructura del circuito DevOps
 
-Este repositorio contiene la configuración Docker Compose del administrador de proyectos.
-
-Actualmente se ejecutan tres servicios: cliente Spring Boot, API Spring Boot y base de datos MariaDB.
+Configuración Docker Compose del administrador de proyectos:
+cliente Spring Boot, API Spring Boot y PostgreSQL 18.
 
 ## Componentes
 
 | Componente | Servicio Compose | Acceso desde el equipo |
 |---|---|---|
-| Cliente Spring Boot | cliente | http://localhost:8082 |
-| API Spring Boot | api | http://localhost:8081 |
-| MariaDB | db | 127.0.0.1:3307 |
+| Cliente | cliente | http://localhost:8082 |
+| API | api | http://localhost:8081 |
+| PostgreSQL | postgres | 127.0.0.1:5433 |
 
-TablePlus se conecta a MariaDB mediante el puerto 3307.
-
-## Comunicación entre servicios
-
-El navegador accede al cliente por el puerto 8082.
-
-El cliente consulta la API mediante `http://api:8081`, utilizando la variable `API_BASE_URL`.
-
-La API se conecta a MariaDB mediante `jdbc:mariadb://db:3306/dbgestor`.
-
-Los nombres `api` y `db` corresponden a los servicios dentro de la red de Compose.
+La base de datos se llama `dbgestor`.
 
 ## Organización
 
-Los tres repositorios deben estar al mismo nivel:
+Los repositorios deben estar al mismo nivel:
 
 - Ejercicio5Cliente
 - Ejercicio5MyAPIGestor
 - infraestructura
 
-Compose utiliza los Dockerfile de los repositorios del cliente y de la API.
+Compose construye las imágenes usando los Dockerfile del cliente y la API.
 
 ## Configuración
 
-Las credenciales se definen en el archivo local `.env`:
+Crear un archivo `.env` tomando `.env.example` como referencia y definir:
 
 - DB_USERNAME
 - DB_PASSWORD
-- DB_ROOT_PASSWORD
 
-El archivo `.env.example` documenta estas variables. Las credenciales reales están excluidas de Git.
+Las credenciales reales quedan excluidas de Git.
 
-MariaDB utiliza una imagen fijada mediante su digest y almacena sus datos en el volumen `mariadb_data`.
-
+PostgreSQL conserva sus datos en el volumen `postgres_data`.
 Los puertos publicados están limitados a `127.0.0.1`.
 
-## Ejecución
+## Primera instalación
 
-Desde la carpeta `infraestructura`, construir e iniciar los servicios:
+Desde infraestructura, iniciar PostgreSQL:
+
+```powershell
+docker compose --env-file .env up -d postgres
+```
+
+Cuando esté healthy, conectar TablePlus usando PostgreSQL,
+host `127.0.0.1`, puerto `5433`, base `dbgestor` y las credenciales
+del `.env`.
+
+Crear la estructura ejecutando el esquema PostgreSQL de la API:
+`Ejercicio5MyAPIGestor/src/test/resources/schema-ci.sql`.
+
+Si se necesitan datos existentes, importar después un respaldo
+convertido a PostgreSQL. Un respaldo de MariaDB requiere conversión.
+
+Construir e iniciar todos los servicios:
 
 ```powershell
 docker compose --env-file .env up -d --build
 ```
 
-Consultar su estado:
+La API valida la estructura existente; no crea las tablas automáticamente.
+
+## Comunicación
+
+El navegador accede al cliente por el puerto 8082.
+
+El cliente consulta la API usando `API_BASE_URL=http://api:8081`.
+
+La API utiliza `jdbc:postgresql://postgres:5432/dbgestor`.
+
+## Operación
+
+Consultar estado:
 
 ```powershell
 docker compose --env-file .env ps
 ```
 
-Consultar los logs del cliente y de la API:
+Consultar logs:
 
 ```powershell
-docker compose --env-file .env logs --tail 50 cliente api
+docker compose --env-file .env logs --tail 50 postgres api cliente
 ```
 
 Detener los servicios conservando los datos:
@@ -74,12 +89,12 @@ Detener los servicios conservando los datos:
 docker compose --env-file .env stop
 ```
 
-## Validaciones realizadas
+## Validación
 
-- MariaDB en estado healthy.
-- Restauración inicial de las seis tablas mediante un respaldo SQL.
-- Coincidencia de cantidades de registros entre la base original y la restaurada.
-- Consulta de proyectos mediante la API con respuesta HTTP 200.
-- Cliente iniciado en Docker en el puerto 8082.
-- Carga del proyecto, su tarea y sus comentarios desde el navegador.
-- Comunicación comprobada entre cliente, API y MariaDB.
+- Datos importados desde MariaDB conservando sus identificadores.
+- 156 pruebas de la API aprobadas con PostgreSQL.
+- CI de la API aprobado con PostgreSQL.
+- Consulta de proyectos, tareas y comentarios comprobada.
+- Comunicación cliente → API → PostgreSQL comprobada en Docker.
+
+El CI de infraestructura valida la configuración de Compose.

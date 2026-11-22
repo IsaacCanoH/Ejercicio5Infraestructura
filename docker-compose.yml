@@ -1,25 +1,24 @@
 name: circuito-devops
 
 services:
-  db:
-    image: mariadb@sha256:d4fdec0510ad498e4f3127da30a99df3745bd6d5e611ae6ac5f76403d9284a8d
-    container_name: dbgestor_devops_mariadb
+  postgres:
+    image: postgres:18
+    container_name: dbgestor_devops_postgres
     restart: unless-stopped
 
     ports:
-      - "127.0.0.1:3307:3306"
+      - "127.0.0.1:5433:5432"
 
     environment:
-      MARIADB_DATABASE: dbgestor
-      MARIADB_USER: "${DB_USERNAME:?Falta definir DB_USERNAME}"
-      MARIADB_PASSWORD: "${DB_PASSWORD:?Falta definir DB_PASSWORD}"
-      MARIADB_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:?Falta definir DB_ROOT_PASSWORD}"
+      POSTGRES_DB: dbgestor
+      POSTGRES_USER: "${DB_USERNAME:?Falta definir DB_USERNAME}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:?Falta definir DB_PASSWORD}"
 
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql
 
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       start_period: 30s
       interval: 10s
       timeout: 5s
@@ -37,12 +36,12 @@ services:
       - "127.0.0.1:8081:8081"
 
     environment:
-      DB_URL: jdbc:mariadb://db:3306/dbgestor
+      DB_URL: jdbc:postgresql://postgres:5432/dbgestor
       DB_USERNAME: "${DB_USERNAME:?Falta definir DB_USERNAME}"
       DB_PASSWORD: "${DB_PASSWORD:?Falta definir DB_PASSWORD}"
 
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
 
   cliente:
@@ -65,4 +64,4 @@ services:
         condition: service_started
 
 volumes:
-  mariadb_data:
+  postgres_data:
