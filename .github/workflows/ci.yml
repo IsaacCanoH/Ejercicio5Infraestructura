@@ -18,7 +18,6 @@ jobs:
     env:
       DB_USERNAME: gestor_ci
       DB_PASSWORD: clave_ci_temporal
-      DB_ROOT_PASSWORD: root_ci_temporal
 
     steps:
       - name: Obtener codigo
