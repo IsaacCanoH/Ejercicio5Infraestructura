@@ -140,3 +140,40 @@ se activan si la consulta de métricas del servicio correspondiente
 falla durante dos minutos. Sus estados se consultan en Prometheus.
 
 La recolección requiere que el equipo y Docker permanezcan encendidos.
+
+## Pruebas de rendimiento
+
+Se utiliza k6 2.4.0 mediante Docker para medir dos operaciones:
+
+- API: POST /buscarProyectos.
+- Cliente: GET /login.
+
+Cada usuario virtual realiza ambas peticiones y espera un segundo
+antes de repetirlas. Se mide la respuesta HTTP de esos endpoints.
+
+Antes de ejecutar las pruebas, comprobar que ambos servicios
+aparezcan en estado UP en Prometheus.
+
+Ejecutar desde la carpeta infraestructura.
+
+### Prueba base: un usuario durante 30 segundos
+
+```powershell
+docker run --rm -v "${PWD}/rendimiento:/pruebas" grafana/k6:2.4.0 run -e PERFIL=base --summary-mode=full --summary-export=/pruebas/resultado-base.json /pruebas/prueba-carga.js 2>&1 | Tee-Object -FilePath .\rendimiento\resultado-base.txt
+```
+
+### Prueba de carga: hasta cinco usuarios durante 90 segundos
+
+```powershell
+docker run --rm -v "${PWD}/rendimiento:/pruebas" grafana/k6:2.4.0 run -e PERFIL=carga --summary-mode=full --summary-export=/pruebas/resultado-carga.json /pruebas/prueba-carga.js 2>&1 | Tee-Object -FilePath .\rendimiento\resultado-carga.txt
+```
+
+Los objetivos del ensayo son un p95 inferior a 2000 ms y una tasa
+de errores inferior al 1 % para cada servicio.
+
+Los reportes originales se guardan en la carpeta `rendimiento`,
+en formatos JSON y TXT.
+
+El workflow incluye la validación de ambos escenarios mediante
+k6 inspect. Las pruebas de carga se ejecutan manualmente sobre
+los servicios del proyecto.
