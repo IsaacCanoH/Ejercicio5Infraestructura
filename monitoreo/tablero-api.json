@@ -5,17 +5,23 @@
     "name": "adgwmjg",
     "namespace": "default",
     "uid": "92abe638-48b2-45ed-9c60-955444a6692a",
-    "resourceVersion": "1795380514767989",
-    "generation": 8,
+    "resourceVersion": "1795393442055988",
+    "generation": 17,
     "creationTimestamp": "2026-11-22T19:55:23Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "3397177665810432"
     },
     "annotations": {
       "grafana.app/createdBy": "user:cg53k3mkdt5vkf",
+      "grafana.app/managedBy": "classic-file-provisioning",
+      "grafana.app/managerAllowsEdits": "true",
+      "grafana.app/managerId": "gestor_api",
       "grafana.app/saved-from-ui": "Grafana v13.3.1 (da3aa3ff57)",
+      "grafana.app/sourceChecksum": "68a922025383ad7e631053815f25fc2d",
+      "grafana.app/sourcePath": "/etc/grafana/dashboards/tablero-api.json",
+      "grafana.app/sourceTimestamp": "1795388312000",
       "grafana.app/updatedBy": "user:cg53k3mkdt5vkf",
-      "grafana.app/updatedTimestamp": "2026-11-22T20:48:34Z"
+      "grafana.app/updatedTimestamp": "2026-11-23T00:24:02Z"
     }
   },
   "spec": {
@@ -47,8 +53,8 @@
         "kind": "Panel",
         "spec": {
           "id": 1,
-          "title": "Estado de la API",
-          "description": "Indica si Prometheus puede consultar las métricas de la API publicada en Render.",
+          "title": "Estado del servicio",
+          "description": "Indica si Prometheus puede consultar las métricas del servicio seleccionado.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -66,7 +72,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "up{job=\"gestor_api_render\"}",
+                        "expr": "up{job=\"$servicio\"}",
                         "legendFormat": "__auto",
                         "range": true
                       }
@@ -148,7 +154,7 @@
         "kind": "Panel",
         "spec": {
           "id": 2,
-          "title": "Uso de CPU de la API",
+          "title": "Uso de CPU del servicio",
           "description": "",
           "links": [],
           "data": {
@@ -167,7 +173,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "100 * process_cpu_usage{job=\"gestor_api_render\"}",
+                        "expr": "100 * process_cpu_usage{job=\"$servicio\"}",
                         "legendFormat": "__auto",
                         "range": true
                       }
@@ -263,7 +269,7 @@
         "kind": "Panel",
         "spec": {
           "id": 3,
-          "title": "Memoria heap de la API",
+          "title": "Memoria heap del servicio",
           "description": "",
           "links": [],
           "data": {
@@ -282,7 +288,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(jvm_memory_used_bytes{job=\"gestor_api_render\", area=\"heap\"})",
+                        "expr": "sum(jvm_memory_used_bytes{job=\"$servicio\", area=\"heap\"})",
                         "legendFormat": "__auto",
                         "range": true
                       }
@@ -378,8 +384,8 @@
         "kind": "Panel",
         "spec": {
           "id": 4,
-          "title": "Solicitudes recibidas por la API",
-          "description": "Total de solicitudes desde el último inicio de la API. Excluye las consultas de monitoreo.",
+          "title": "Solicitudes recibidas por el servicio",
+          "description": "Total de solicitudes desde el último inicio del servicio seleccionado. Excluye las rutas de monitoreo.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -397,7 +403,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(http_server_requests_seconds_count{job=\"gestor_api_render\", uri!~\"/actuator.*\"})",
+                        "expr": "sum(http_server_requests_seconds_count{job=\"$servicio\", uri!~\"/actuator.*\"})",
                         "legendFormat": "__auto",
                         "range": true
                       }
@@ -464,7 +470,7 @@
         "spec": {
           "id": 5,
           "title": "Tiempo promedio de respuesta",
-          "description": "Promedio registrado por la API durante los últimos 5 minutos. Excluye las consultas de monitoreo.",
+          "description": "Tiempo promedio registrado por el servicio seleccionado durante los últimos 5 minutos. Excluye las rutas de monitoreo.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -482,7 +488,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "1000 * (\r\n  sum(rate(http_server_requests_seconds_sum{job=\"gestor_api_render\", uri!~\"/actuator.*\"}[5m]))\r\n  /\r\n  sum(rate(http_server_requests_seconds_count{job=\"gestor_api_render\", uri!~\"/actuator.*\"}[5m]))\r\n)",
+                        "expr": "1000 * (\r\n  sum(rate(http_server_requests_seconds_sum{job=\"$servicio\", uri!~\"/actuator.*\"}[5m]))\r\n  /\r\n  sum(rate(http_server_requests_seconds_count{job=\"$servicio\", uri!~\"/actuator.*\"}[5m]))\r\n)",
                         "legendFormat": "__auto",
                         "range": true
                       }
@@ -579,7 +585,7 @@
         "spec": {
           "id": 6,
           "title": "Errores del servidor (5xx)",
-          "description": "Total de errores HTTP 5xx registrados desde el último inicio de la API. Excluye las consultas de monitoreo.",
+          "description": "Total de errores HTTP 5xx desde el último inicio del servicio seleccionado. Excluye las rutas de monitoreo.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -597,7 +603,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(http_server_requests_seconds_count{job=\"gestor_api_render\", uri!~\"/actuator.*\", status=~\"5..\"})\r\nor\r\n(0 * sum(http_server_requests_seconds_count{job=\"gestor_api_render\", uri!~\"/actuator.*\"}))",
+                        "expr": "sum(http_server_requests_seconds_count{job=\"$servicio\", uri!~\"/actuator.*\", status=~\"5..\"})\r\nor\r\n(0 * sum(http_server_requests_seconds_count{job=\"$servicio\", uri!~\"/actuator.*\"}))",
                         "legendFormat": "__auto",
                         "range": true
                       }
@@ -748,8 +754,28 @@
       "hideTimepicker": false,
       "fiscalYearStartMonth": 0
     },
-    "title": "Monitoreo API Gestor - Render",
-    "variables": [],
+    "title": "Monitoreo Gestor - API y Cliente",
+    "variables": [
+      {
+        "kind": "CustomVariable",
+        "spec": {
+          "name": "servicio",
+          "query": "API : gestor_api_render, Cliente : gestor_cliente_render",
+          "current": {
+            "text": "API",
+            "value": "gestor_api_render"
+          },
+          "options": [],
+          "multi": false,
+          "includeAll": false,
+          "label": "Servicio",
+          "hide": "dontHide",
+          "skipUrlSync": false,
+          "allowCustomValue": false,
+          "valuesFormat": "csv"
+        }
+      }
+    ],
     "preferences": {
       "layout": {
         "kind": "AutoGridLayout",

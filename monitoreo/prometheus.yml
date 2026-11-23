@@ -17,3 +17,16 @@ scrape_configs:
     static_configs:
       - targets:
           - ejercicio5myapigestor-1rp1.onrender.com
+
+  - job_name: gestor_cliente_render
+    scheme: https
+    metrics_path: /actuator/prometheus
+    scrape_timeout: 10s
+
+    basic_auth:
+      username: monitor
+      password_file: /run/secrets/monitoring_password
+
+    static_configs:
+      - targets:
+          - ejercicio5cliente-rs8m.onrender.com

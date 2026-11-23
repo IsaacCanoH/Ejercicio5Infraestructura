@@ -104,12 +104,16 @@ El CI de infraestructura valida la configuración de Compose.
 
 ## Monitoreo
 
-Prometheus y Grafana se ejecutan localmente con Docker y consultan
-las métricas de la API publicada en Render.
+Prometheus y Grafana se ejecutan localmente con Docker.
+Prometheus consulta las métricas de la API y del cliente publicados
+en Render cada 30 segundos.
 
-En `.env`, las variables MONITORING_USERNAME y MONITORING_PASSWORD
-deben coincidir con las configuradas en la API de Render.
-GRAFANA_ADMIN_PASSWORD define la contraseña del usuario admin de Grafana.
+En `.env`, configurar:
+
+- MONITORING_USERNAME: monitor.
+- MONITORING_PASSWORD: misma contraseña de monitoreo configurada
+  en ambos servicios de Render.
+- GRAFANA_ADMIN_PASSWORD: contraseña del usuario admin de Grafana.
 
 Iniciar el monitoreo:
 
@@ -123,15 +127,16 @@ Accesos:
 - [Alertas de Prometheus](http://localhost:9090/alerts)
 - [Grafana](http://localhost:3000)
 
-Grafana carga automáticamente la conexión y el tablero desde los
-archivos de la carpeta `monitoreo`.
+Grafana carga automáticamente la conexión y el tablero desde
+los archivos de la carpeta `monitoreo`.
 
-El tablero muestra estado, CPU, memoria heap, solicitudes,
-tiempo promedio de respuesta y errores HTTP 5xx.
+El tablero “Monitoreo Gestor - API y Cliente” permite elegir
+el servicio mediante el selector Servicio. Los seis paneles muestran
+estado, CPU, memoria heap, solicitudes, tiempo promedio de respuesta
+y errores HTTP 5xx del servicio seleccionado.
 
-La alerta MetricasAPINoDisponibles se activa cuando la consulta
-de métricas falla durante dos minutos. Su estado se consulta
-en la página de alertas de Prometheus.
+Las alertas MetricasAPINoDisponibles y MetricasClienteNoDisponibles
+se activan si la consulta de métricas del servicio correspondiente
+falla durante dos minutos. Sus estados se consultan en Prometheus.
 
-La recolección de métricas requiere que el equipo y Docker
-permanezcan encendidos.
+La recolección requiere que el equipo y Docker permanezcan encendidos.
