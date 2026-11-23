@@ -1,5 +1,5 @@
 groups:
-  - name: gestor_api
+  - name: gestor_servicios
     interval: 30s
     rules:
       - alert: MetricasAPINoDisponibles
@@ -9,4 +9,13 @@ groups:
           severity: warning
         annotations:
           summary: "No se pueden consultar las métricas de la API"
-          description: "La consulta de métricas ha fallado durante dos minutos."
+          description: "La consulta de métricas de la API ha fallado durante dos minutos."
+
+      - alert: MetricasClienteNoDisponibles
+        expr: up{job="gestor_cliente_render"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "No se pueden consultar las métricas del cliente"
+          description: "La consulta de métricas del cliente ha fallado durante dos minutos."
