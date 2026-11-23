@@ -31,3 +31,12 @@ jobs:
 
       - name: Validar configuracion de Compose
         run: docker compose -f docker-compose.yml config --quiet
+      
+      - name: Validar escenarios de rendimiento
+        run: |
+          for perfil in base carga; do
+            docker run --rm \
+              -v "$GITHUB_WORKSPACE/rendimiento:/pruebas:ro" \
+              grafana/k6:2.4.0 inspect --execution-requirements \
+              -e "PERFIL=$perfil" /pruebas/prueba-carga.js
+          done
