@@ -1,0 +1,59 @@
+# Exported from Render on 2026-11-24T19:26:33Z
+version: "1"
+services:
+- type: web
+  name: Ejercicio5Cliente
+  runtime: docker
+  repo: https://github.com/IsaacCanoH/Ejercicio5Cliente
+  branch: main
+  plan: free
+  envVars:
+  - key: MONITORING_PASSWORD
+    sync: false
+  - key: MONITORING_USERNAME
+    value: monitor
+  - key: API_BASE_URL
+    sync: false
+  - key: SERVER_PORT
+    value: "10000"
+  region: oregon
+  dockerContext: .
+  dockerfilePath: ./Dockerfile
+  autoDeployTrigger: checksPass
+- type: web
+  name: Ejercicio5MyAPIGestor
+  runtime: docker
+  repo: https://github.com/IsaacCanoH/Ejercicio5MyAPIGestor
+  branch: main
+  plan: free
+  envVars:
+  - key: MONITORING_PASSWORD
+    sync: false
+  - key: MONITORING_USERNAME
+    value: monitor
+  - key: DB_URL
+    sync: false
+  - key: DB_PASSWORD
+    fromDatabase:
+      name: gestor-postgres
+      property: password
+  - key: DB_USERNAME
+    fromDatabase:
+      name: gestor-postgres
+      property: user
+  - key: SERVER_PORT
+    value: "10000"
+  region: oregon
+  dockerContext: .
+  dockerfilePath: ./Dockerfile
+  autoDeployTrigger: checksPass
+databases:
+- name: gestor-postgres
+  databaseName: dbgestor_nj3f
+  user: gestor_app
+  plan: free
+  region: oregon
+  ipAllowList:
+  - source: 0.0.0.0/0
+    description: everywhere
+  postgresMajorVersion: "18"

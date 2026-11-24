@@ -189,3 +189,23 @@ en formatos JSON y TXT.
 El workflow incluye la validación de ambos escenarios mediante
 k6 inspect. Las pruebas de carga se ejecutan manualmente sobre
 los servicios del proyecto.
+
+## Infraestructura en Render
+
+El archivo render.yaml define el cliente, la API y PostgreSQL
+mediante Render Blueprints.
+
+Las aplicaciones usan Docker, la rama main y el plan gratuito.
+La API obtiene el usuario y la contraseña de PostgreSQL
+mediante referencias a la base de datos.
+
+Las siguientes variables se proporcionan desde Render:
+- API_BASE_URL: dirección pública HTTPS de la API.
+- DB_URL: dirección JDBC de PostgreSQL.
+- MONITORING_PASSWORD: contraseña de monitoreo de cada aplicación.
+
+Estas variables están marcadas con sync: false.
+Al incorporar los servicios existentes, se conservan sus valores.
+
+Antes de aplicar el Blueprint, se debe comprobar que Render
+vincule los tres recursos existentes y mantenga sus planes.
