@@ -40,29 +40,41 @@ Los puertos publicados están limitados a `127.0.0.1`.
 
 ## Primera instalación
 
-Desde infraestructura, iniciar PostgreSQL:
+Con los tres repositorios ubicados al mismo nivel y el archivo
+`.env` configurado, ejecutar desde infraestructura:
 
 ```powershell
-docker compose --env-file .env up -d postgres
-```
-
-Cuando esté healthy, conectar TablePlus usando PostgreSQL,
-host `127.0.0.1`, puerto `5433`, base `dbgestor` y las credenciales
-del `.env`.
-
-Crear la estructura ejecutando el esquema PostgreSQL de la API:
-`Ejercicio5MyAPIGestor/src/test/resources/schema-ci.sql`.
-
-Si se necesitan datos existentes, importar después un respaldo
-convertido a PostgreSQL. Un respaldo de MariaDB requiere conversión.
-
-Construir e iniciar todos los servicios:
-
-```powershell
+docker compose --env-file .env config --quiet
 docker compose --env-file .env up -d --build
 ```
 
-La API valida la estructura existente; no crea las tablas automáticamente.
+Cuando PostgreSQL inicia con un almacenamiento vacío, ejecuta
+automáticamente el archivo de la API:
+`Ejercicio5MyAPIGestor/src/test/resources/schema-ci.sql`.
+
+Este archivo crea las cinco tablas, la secuencia de identificadores
+y los dos índices. No es necesario crear las tablas con TablePlus.
+
+La API valida que la estructura sea compatible al arrancar.
+
+La inicialización automática se ejecuta únicamente cuando el
+almacenamiento está vacío. En una instalación existente se
+conservan los datos y el esquema no se vuelve a ejecutar.
+
+Comprobar el estado de los servicios:
+
+```powershell
+docker compose --env-file .env ps
+```
+
+Accesos de la instalación normal:
+
+- Cliente: http://localhost:8082/login
+- Estado de la API: http://localhost:8081/actuator/health
+- Estado del cliente: http://localhost:8082/actuator/health
+
+En una instalación nueva, registrar un usuario desde
+http://localhost:8082/register antes de iniciar sesión.
 
 ## Comunicación
 
