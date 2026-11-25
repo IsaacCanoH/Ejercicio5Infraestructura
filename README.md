@@ -209,3 +209,43 @@ Al incorporar los servicios existentes, se conservan sus valores.
 
 Antes de aplicar el Blueprint, se debe comprobar que Render
 vincule los tres recursos existentes y mantenga sus planes.
+
+## Trazas distribuidas locales
+
+La API y el cliente incluyen el agente OpenTelemetry Java 2.34.0.
+Docker Compose lo activa y configura el envío de trazas a Jaeger 2.23.0.
+
+Las trazas permiten seguir una petición desde el cliente hacia la API
+y sus operaciones en PostgreSQL. Esta configuración corresponde
+a las aplicaciones locales de Docker.
+
+### Iniciar y comprobar
+
+Desde la carpeta infraestructura, ejecutar:
+
+```powershell
+docker compose --env-file .env config --quiet
+docker compose --env-file .env up -d --build jaeger api cliente
+```
+
+1. Abrir http://localhost:8082/login.
+2. Iniciar sesión con un usuario local y abrir un proyecto.
+3. Esperar unos diez segundos.
+4. Abrir http://localhost:16686/search.
+5. Seleccionar gestor-cliente y pulsar Find Traces.
+6. Abrir una traza y comprobar las operaciones de gestor-cliente,
+   gestor-api y PostgreSQL.
+
+En una instalación nueva, registrar primero un usuario desde
+http://localhost:8082/register.
+
+### Resultado comprobado
+
+El archivo `trazas/resultado-trazas.json` conserva la exportación
+original de una ejecución: 11 trazas, 55 spans y siete trazas
+con operaciones del cliente, la API y PostgreSQL conectadas.
+Ningún span de esa exportación está marcado como error.
+
+Jaeger utiliza almacenamiento en memoria. Las trazas se pierden
+al reiniciar su contenedor; los resultados pueden exportarse
+mediante Download Results.

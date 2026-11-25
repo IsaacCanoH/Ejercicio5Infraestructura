@@ -42,6 +42,14 @@ services:
       DB_PASSWORD: "${DB_PASSWORD:?Falta definir DB_PASSWORD}"
       MONITORING_USERNAME: "${MONITORING_USERNAME:?Falta definir MONITORING_USERNAME}"
       MONITORING_PASSWORD: "${MONITORING_PASSWORD:?Falta definir MONITORING_PASSWORD}"
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: "gestor-api"
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4318"
+      OTEL_TRACES_SAMPLER: "parentbased_always_on"
+      OTEL_METRICS_EXPORTER: "none"
+      OTEL_LOGS_EXPORTER: "none"
 
     depends_on:
       postgres:
@@ -63,6 +71,14 @@ services:
       API_BASE_URL: http://api:8081
       MONITORING_USERNAME: "${MONITORING_USERNAME:?Falta definir MONITORING_USERNAME}"
       MONITORING_PASSWORD: "${MONITORING_PASSWORD:?Falta definir MONITORING_PASSWORD}"
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: "gestor-cliente"
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4318"
+      OTEL_TRACES_SAMPLER: "parentbased_always_on"
+      OTEL_METRICS_EXPORTER: "none"
+      OTEL_LOGS_EXPORTER: "none"
 
     depends_on:
       api:
@@ -107,6 +123,13 @@ services:
       - ./monitoreo/grafana-datasource.yml:/etc/grafana/provisioning/datasources/gestor.yml:ro
       - ./monitoreo/grafana-dashboard.yml:/etc/grafana/provisioning/dashboards/gestor.yml:ro
       - ./monitoreo/tablero-api.json:/etc/grafana/dashboards/tablero-api.json:ro
+  jaeger:
+    image: cr.jaegertracing.io/jaegertracing/jaeger:2.23.0
+    container_name: dbgestor_devops_jaeger
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:16686:16686"
 
 volumes:
   postgres_data:
