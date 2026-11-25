@@ -1,3 +1,11 @@
 .env
 .env.*
 !.env.example
+
+# Archivos locales de Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+crash.log

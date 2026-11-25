@@ -40,3 +40,34 @@ jobs:
               grafana/k6:2.4.0 inspect --execution-requirements \
               -e "PERFIL=$perfil" /pruebas/prueba-carga.js
           done
+    
+  validar_terraform:
+    name: Validar Terraform AWS
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    defaults:
+      run:
+        working-directory: aws
+
+    steps:
+      - name: Obtener codigo
+        uses: actions/checkout@v7
+
+      - name: Preparar Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.17.2"
+          terraform_wrapper: false
+
+      - name: Comprobar formato
+        run: terraform fmt -check -recursive
+
+      - name: Inicializar proveedor
+        run: terraform init -backend=false -input=false
+
+      - name: Validar configuracion
+        run: terraform validate
+
+      - name: Validar script de preparacion
+        run: bash -n user-data.sh
