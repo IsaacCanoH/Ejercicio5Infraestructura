@@ -249,3 +249,51 @@ Ningún span de esa exportación está marcado como error.
 Jaeger utiliza almacenamiento en memoria. Las trazas se pierden
 al reiniciar su contenedor; los resultados pueden exportarse
 mediante Download Results.
+
+## Trazas distribuidas en Render
+
+La API y el cliente publicados en Render utilizan OpenTelemetry
+Java Agent 2.34.0 y envían sus trazas a Grafana Cloud mediante OTLP
+sobre HTTPS.
+
+Los servicios se identifican como:
+
+- gestor-cliente-render
+- gestor-api-render
+
+### Configuración
+
+El archivo render.yaml define la activación del agente,
+los nombres de servicio, el receptor y la exportación de trazas.
+
+En Grafana Cloud se necesita una política con permiso traces:write
+y un token asociado. El asistente de OpenTelemetry genera el valor
+de OTEL_EXPORTER_OTLP_HEADERS usando ese token.
+
+Ese valor se proporciona de forma privada en Environment Variables
+de ambos servicios de Render. En el Blueprint se declara mediante
+sync: false.
+
+### Comprobar el recorrido
+
+1. Iniciar sesión en el cliente publicado y abrir un proyecto.
+2. En Grafana Cloud, abrir Explore y seleccionar la fuente Tempo.
+3. Ejecutar esta consulta en modo TraceQL:
+
+```traceql
+{ resource.service.name = "gestor-cliente-render" }
+```
+
+4. Abrir una traza y comprobar las operaciones conectadas del cliente,
+   la API y PostgreSQL.
+
+### Resultado comprobado
+
+El archivo trazas/resultado-trazas-render.json conserva una traza
+original de POST /actualizarProyecto con siete spans: dos del cliente
+y cinco de la API, incluida una consulta a PostgreSQL.
+
+La petición duró 701,84 ms, sus operaciones HTTP respondieron 200
+y ningún span quedó marcado como error.
+
+Las trazas pueden conservarse mediante Export as JSON en Grafana Cloud.

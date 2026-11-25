@@ -16,6 +16,24 @@ services:
     sync: false
   - key: SERVER_PORT
     value: "10000"
+  - key: JAVA_TOOL_OPTIONS
+    value: "-javaagent:/app/opentelemetry-javaagent.jar"
+  - key: OTEL_SERVICE_NAME
+    value: "gestor-cliente-render"
+  - key: OTEL_TRACES_EXPORTER
+    value: "otlp"
+  - key: OTEL_EXPORTER_OTLP_PROTOCOL
+    value: "http/protobuf"
+  - key: OTEL_EXPORTER_OTLP_ENDPOINT
+    value: "https://otlp-gateway-prod-us-east-6.grafana.net/otlp"
+  - key: OTEL_EXPORTER_OTLP_HEADERS
+    sync: false
+  - key: OTEL_TRACES_SAMPLER
+    value: "parentbased_always_on"
+  - key: OTEL_METRICS_EXPORTER
+    value: "none"
+  - key: OTEL_LOGS_EXPORTER
+    value: "none"
   region: oregon
   dockerContext: .
   dockerfilePath: ./Dockerfile
@@ -43,6 +61,24 @@ services:
       property: user
   - key: SERVER_PORT
     value: "10000"
+  - key: JAVA_TOOL_OPTIONS
+    value: "-javaagent:/app/opentelemetry-javaagent.jar"
+  - key: OTEL_SERVICE_NAME
+    value: "gestor-api-render"
+  - key: OTEL_TRACES_EXPORTER
+    value: "otlp"
+  - key: OTEL_EXPORTER_OTLP_PROTOCOL
+    value: "http/protobuf"
+  - key: OTEL_EXPORTER_OTLP_ENDPOINT
+    value: "https://otlp-gateway-prod-us-east-6.grafana.net/otlp"
+  - key: OTEL_EXPORTER_OTLP_HEADERS
+    sync: false
+  - key: OTEL_TRACES_SAMPLER
+    value: "parentbased_always_on"
+  - key: OTEL_METRICS_EXPORTER
+    value: "none"
+  - key: OTEL_LOGS_EXPORTER
+    value: "none"
   region: oregon
   dockerContext: .
   dockerfilePath: ./Dockerfile
